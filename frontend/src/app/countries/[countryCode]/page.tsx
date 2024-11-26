@@ -2,6 +2,8 @@
 
 import Link from "next/link";
 import { type FC } from "react";
+import { CameraOff } from "lucide-react";
+import { notFound } from "next/navigation";
 
 import { PopulationChart } from "./population-chart";
 
@@ -39,6 +41,8 @@ const CountryPage: FC<Props> = async ({ params }) => {
   const countryHasBorders =
     Array.isArray(country.borders) && country.borders.length > 0;
 
+  if (!country.commonName) notFound();
+
   return (
     <main className="py-14">
       <div className="mx-auto max-w-xl">
@@ -46,11 +50,17 @@ const CountryPage: FC<Props> = async ({ params }) => {
         <p className="text-sm text-slate-600">
           or <strong>{country.officialName}</strong>
         </p>
-        <img
-          className="mx-auto my-10 h-96 rounded-lg"
-          src={country.flagURL}
-          alt={`${country.commonName} flag`}
-        />
+        {country.flagURL ? (
+          <img
+            className="mx-auto my-10 h-96 rounded-lg"
+            src={country.flagURL}
+            alt={`${country.commonName} flag`}
+          />
+        ) : (
+          <div className="mx-auto my-10 flex h-96 w-full items-center justify-center rounded-lg bg-slate-100">
+            <CameraOff className="h-48 w-48 text-slate-400" />
+          </div>
+        )}
 
         {countryHasBorders && (
           <>
@@ -58,15 +68,21 @@ const CountryPage: FC<Props> = async ({ params }) => {
             <div className="flex flex-wrap items-center gap-x-5">
               {country.borders.map((country) => (
                 <Link
-                  className="rounded-lg p-3 transition duration-300 hover:bg-slate-100"
+                  className="rounded-lg p-3 transition duration-300 hover:bg-slate-50"
                   key={country.name}
                   href={routes.countryPage(country.code)}
                 >
-                  <img
-                    className="mb-2 h-16"
-                    src={country.flagURL}
-                    alt={`${country.name} flag`}
-                  />
+                  {country.flagURL ? (
+                    <img
+                      className="mb-2 h-16 rounded-sm"
+                      src={country.flagURL}
+                      alt={`${country.name} flag`}
+                    />
+                  ) : (
+                    <div className="mx-auto mb-2 flex h-16 w-full items-center justify-center rounded-sm bg-slate-100">
+                      <CameraOff className="h-8 w-8 text-slate-400" />
+                    </div>
+                  )}
                   <p className="text-sm text-slate-600">{country.name}</p>
                 </Link>
               ))}
